@@ -7,4 +7,10 @@ const api = {
       res.json()
     );
   },
+
+  fetchCatsDetail: (id) => {
+    return fetch(`${API_ENDPOINT}/api/cats/${id}`)
+      .then((res) => res.json())
+      .catch((err) => console.err("Cannot get information"));
+  },
 };

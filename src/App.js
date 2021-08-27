@@ -7,12 +7,21 @@ class App {
   constructor($target) {
     this.$target = $target;
 
-    this.DarkModeInput = new DarkModeInput({ $target });
+    this.darkModeInput = new DarkModeInput({
+      $target,
+    });
 
     this.searchInput = new SearchInput({
       $target,
       onSearch: (keyword) => {
-        api.fetchCats(keyword).then(({ data }) => this.setState(data));
+        this.setState({
+          //검색 시작 시 loading 처리.
+          data: null, //
+          loading: true,
+        });
+        api
+          .fetchCats(keyword)
+          .then(({ data }) => this.setState({ data, loading: false }));
       },
     });
 
@@ -20,10 +29,12 @@ class App {
       $target,
       initialData: this.data,
       onClick: (image) => {
-        this.imageInfo.setState({
-          visible: true,
-          image,
-        });
+        api.fetchCatsDetail(image.id).then(({ data }) =>
+          this.imageInfo.setState({
+            visible: true,
+            image: data,
+          })
+        );
       },
     });
 

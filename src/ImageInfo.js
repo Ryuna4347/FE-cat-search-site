@@ -10,17 +10,28 @@ class ImageInfo {
 
     this.data = data;
 
+    $imageInfo.addEventListener("click", (e) => {
+      if (e.target.className === "close" || e.target.className === "ImageInfo")
+        $imageInfo.style.display = "none";
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if ($imageInfo.style.display === "block" && e.key === "Escape")
+        $imageInfo.style.display = "none";
+    });
+
     this.render();
   }
 
-  setState(nextData) {
-    this.data = nextData;
+  setState({ visible, data }) {
+    this.visible = visible;
+    this.data = data;
     this.render();
   }
 
   render() {
-    if (this.data.visible) {
-      const { name, url, temperament, origin } = this.data.image;
+    if (this.visible) {
+      const { name, url, temperament, origin } = this.data;
 
       this.$imageInfo.innerHTML = `
 		  <div class="content-wrapper">
@@ -40,3 +51,5 @@ class ImageInfo {
     }
   }
 }
+
+export default ImageInfo;

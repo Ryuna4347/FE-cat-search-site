@@ -1,3 +1,10 @@
+import DarkModeCheckBox from "./DarkModeCheckBox.js";
+import SearchInput from "./SearchInput.js";
+import SearchResult from "./SearchResult.js";
+import ImageInfo from "./ImageInfo.js";
+import RandomButton from "./RandomButton.js";
+import api from "./api.js";
+
 console.log("app is running!");
 
 class App {
@@ -7,21 +14,35 @@ class App {
   constructor($target) {
     this.$target = $target;
 
-    this.darkModeInput = new DarkModeInput({
-      $target,
-    });
+    this.darkModeCheckBox = new DarkModeCheckBox({ $target });
+
+    const $searchBox = document.createElement("div");
+    $searchBox.className = "SearchBox";
+    $target.appendChild($searchBox);
+    console.log("create", $searchBox);
 
     this.searchInput = new SearchInput({
-      $target,
+      $target: $searchBox,
       onSearch: (keyword) => {
-        this.setState({
-          //검색 시작 시 loading 처리.
-          data: null, //
-          loading: true,
-        });
-        api
-          .fetchCats(keyword)
-          .then(({ data }) => this.setState({ data, loading: false }));
+        if (!this.searchResult.loading) {
+          this.searchResult.setState({ loading: true });
+          api.fetchCats(keyword).then(({ data }) => {
+            this.setState({ data, loading: false });
+          });
+        }
+      },
+    });
+
+    this.randomButton = new RandomButton({
+      $target: $searchBox,
+      onClick: () => {
+        if (!this.searchResult.loading) {
+          this.searchResult.setState({ loading: true });
+          api.fetchRandomCat().then(({ data }) => {
+            console.log(data);
+            this.setState({ data, loading: false });
+          });
+        }
       },
     });
 
@@ -29,12 +50,15 @@ class App {
       $target,
       initialData: this.data,
       onClick: (image) => {
-        api.fetchCatsDetail(image.id).then(({ data }) =>
-          this.imageInfo.setState({
-            visible: true,
-            image: data,
-          })
-        );
+        api.fetchCatDetail(image.id).then(({ data }) => {
+          if (data) {
+            this.imageInfo.setState({
+              visible: true,
+              data: data,
+              image,
+            });
+          }
+        });
       },
     });
 
@@ -48,8 +72,10 @@ class App {
   }
 
   setState(nextData) {
-    console.log(this);
+    console.log(nextData);
     this.data = nextData;
     this.searchResult.setState(nextData);
   }
 }
+
+export default App;
